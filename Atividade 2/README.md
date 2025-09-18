@@ -1,7 +1,7 @@
 # Projeto: Monitor de Temperatura e Umidade com Display TFT e Alarme
 
-**Autor:** (Seu Nome Aqui)
-**Data:** 17 de setembro de 2025
+**Autor:** Cefras José Ferreira Mandú de Almeida
+**Data:** 14 de setembro de 2025
 **Versão:** 1.0
 
 ## Visão Geral
