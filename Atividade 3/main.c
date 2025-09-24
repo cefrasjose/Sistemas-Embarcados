@@ -9,10 +9,10 @@
 #define DELAY_MS 500
 
 //Define os pinos GPIO conectados aos LEDs
-#define LED1_GPIO 2  // Bit 0 (LSB - menos significativo)
-#define LED2_GPIO 4  // Bit 1
-#define LED3_GPIO 5  // Bit 2
-#define LED4_GPIO 18 // Bit 3 (MSB - mais significativo)
+#define LED1_GPIO 2  //Bit 0 (LSB - menos significativo)
+#define LED2_GPIO 4  //Bit 1
+#define LED3_GPIO 5  //Bit 2
+#define LED4_GPIO 18 //Bit 3 (MSB - mais significativo)
 
 //Array com os pinos dos LEDs para facilitar o acesso em loops
 static const gpio_num_t led_gpios[] = {LED1_GPIO, LED2_GPIO, LED3_GPIO, LED4_GPIO};
@@ -38,7 +38,8 @@ void configure_leds(void) {
     gpio_config(&io_conf);
 }
 
-/*Desliga todos os LEDs.*/
+/*Desliga todos os LEDs.
+ */
 void turn_all_leds_off(void) {
     for (int i = 0; i < NUM_LEDS; i++) {
         gpio_set_level(led_gpios[i], 0);
@@ -58,18 +59,18 @@ void run_binary_counter_phase(void) {
         gpio_set_level(LED3_GPIO, (i & 4) >> 2); // Bit 2
         gpio_set_level(LED4_GPIO, (i & 8) >> 3); // Bit 3
 
-        // Aguarda o tempo definido [cite: 29]
+        //Aguarda o tempo definido [cite: 29]
         vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
-/* Implementa a Fase 2: Sequência de Varredura. 
+/* Implementa a Fase 2: Sequência de Varredura.
    Os LEDs acendem em sequência e depois retornam
  */
 void run_scan_sequence_phase(void) {
     printf("Iniciando Fase 2: Sequência de Varredura\n");
 
-    // Sequência de ida (LED1 -> LED2 -> LED3 -> LED4) 
+    //Sequência de ida (LED1 -> LED2 -> LED3 -> LED4) 
     for (int i = 0; i < NUM_LEDS; i++) {
         gpio_set_level(led_gpios[i], 1);
         vTaskDelay(DELAY_MS / portTICK_PERIOD_MS);
