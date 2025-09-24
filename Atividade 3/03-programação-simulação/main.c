@@ -9,10 +9,10 @@
 #define DELAY_MS 500
 
 //Define os pinos GPIO conectados aos LEDs
-#define LED1_GPIO 2  // Bit 0 (LSB - menos significativo)
-#define LED2_GPIO 4  // Bit 1
-#define LED3_GPIO 5  // Bit 2
-#define LED4_GPIO 18 // Bit 3 (MSB - mais significativo)
+#define LED1_GPIO 2  //Bit 0 (LSB - menos significativo)
+#define LED2_GPIO 4  //Bit 1
+#define LED3_GPIO 5  //Bit 2
+#define LED4_GPIO 18 //Bit 3 (MSB - mais significativo)
 
 //Array com os pinos dos LEDs para facilitar o acesso em loops
 static const gpio_num_t led_gpios[] = {LED1_GPIO, LED2_GPIO, LED3_GPIO, LED4_GPIO};
