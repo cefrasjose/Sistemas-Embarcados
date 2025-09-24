@@ -86,7 +86,6 @@ void run_scan_sequence_phase(void) {
     }
 }
 
-
 //Função Principal
 
 void app_main(void) {
