@@ -4,7 +4,6 @@
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
-#include "esp_log.h"
 
 // Definições dos Pinos
 #define TX2_PIN 17
@@ -14,9 +13,6 @@
 // Definições da UART
 #define UART_PORT_NUM UART_NUM_2
 #define BUF_SIZE 1024
-
-// Tag para o Monitor Serial (UART0)
-static const char *TAG = "UART_LOOPBACK";
 
 void app_main(void)
 {
@@ -44,6 +40,9 @@ void app_main(void)
     uint8_t rx_buffer[BUF_SIZE];
     bool ligar_led = true; // Variável de controle para alternar o estado
 
+    printf("Iniciando Simulacao UART Loopback...\n");
+    printf("---------------------------------------------------\n");
+
     while (1) {
         // 3. Define a mensagem a ser enviada
         const char* msg_tx = ligar_led ? "LIGAR" : "DESLIGAR";
@@ -51,35 +50,44 @@ void app_main(void)
         // Envia a string pela UART2
         uart_write_bytes(UART_PORT_NUM, msg_tx, strlen(msg_tx));
         
-        // Imprime o feedback no console principal (UART0)
-        ESP_LOGI(TAG, "Enviado: %s", msg_tx);
+        // Imprime o feedback de envio no console principal com printf
+        printf("[TX] Enviado: %s\n", msg_tx);
 
-        // Delay de 100ms para dar tempo ao hardware de realizar o loopback físico
+        // Delay de 100ms para dar tempo ao sinal elétrico percorrer o jumper e ser lido
         vTaskDelay(pdMS_TO_TICKS(100));
 
         // 4. Processamento da Recepção
         int len = uart_read_bytes(UART_PORT_NUM, rx_buffer, BUF_SIZE - 1, pdMS_TO_TICKS(100));
         
         if (len > 0) {
-            rx_buffer[len] = '\0'; // Adiciona terminador nulo para usar como string
+            rx_buffer[len] = '\0'; // Adiciona terminador nulo para transformar o array de bytes em string
             
-            // Imprime o que foi recebido no console (UART0)
-            ESP_LOGI(TAG, "Recebido: %s", (char*)rx_buffer);
+            // Imprime o dado bruto que chegou na porta serial
+            printf("[RX] Recebido na RX: %s\n", (char*)rx_buffer);
 
-            // Verifica as condições para acionar o LED
+            // Verifica as condições e imprime o feedback da ação executada
             if (strncmp((char*)rx_buffer, "LIGAR", 5) == 0) {
                 gpio_set_level(LED_PIN, 1);
+                printf("-> STATUS: O codigo entrou no IF. O LED foi LIGADO!\n");
+                
             } else if (strncmp((char*)rx_buffer, "DESLIGAR", 8) == 0) {
                 gpio_set_level(LED_PIN, 0);
+                printf("-> STATUS: O codigo entrou no ELSE IF. O LED foi DESLIGADO!\n");
+                
+            } else {
+                printf("-> AVISO: Comando recebido nao reconhecido.\n"); 
             }
         } else {
-            ESP_LOGW(TAG, "Nenhum dado recebido. Verifique o jumper!");
+            printf("-> ERRO: Nenhum dado recebido. Verifique se o jumper (fio azul) esta conectado!\n");
         }
 
-        // Alterna a lógica para a próxima execução
+        // Adiciona um separador visual no log para facilitar a leitura no terminal
+        printf("---------------------------------------------------\n");
+
+        // Alterna a lógica para a próxima execução ("LIGAR" -> "DESLIGAR" -> "LIGAR")
         ligar_led = !ligar_led;
 
         // Aguarda mais 1900ms para completar o ciclo exato de 2 segundos de envio periódico
-        vTaskDelay(pdMS_TO_TICKS(1800)); 
+        vTaskDelay(pdMS_TO_TICKS(1900)); 
     }
 }
