@@ -6,9 +6,9 @@
 #include "driver/gpio.h"
 
 // Definição dos Pinos 
-#define POT_PIN ADC1_CHANNEL_7 // Corresponde ao GPIO 35
-#define LED_PIN 45             
-#define BUTTON_PIN 46          
+#define POT_PIN ADC1_CHANNEL_3 // GPIO 4 
+#define LED_PIN 45             // GPIO 45
+#define BUTTON_PIN 46          // GPIO 46
 
 void app_main() {
     // 1. Configuração do ADC
@@ -19,8 +19,8 @@ void app_main() {
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
         .timer_num        = LEDC_TIMER_0,
-        .duty_resolution  = LEDC_TIMER_12_BIT, 
-        .freq_hz          = 5000,              
+        .duty_resolution  = LEDC_TIMER_12_BIT, // 12 bits para casar com o ADC
+        .freq_hz          = 1000,              
         .clk_cfg          = LEDC_AUTO_CLK
     };
     ledc_timer_config(&ledc_timer);
@@ -39,35 +39,35 @@ void app_main() {
 
     // 4. Configuração do Botão
     gpio_set_direction(BUTTON_PIN, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_PIN, GPIO_PULLUP_ONLY); 
+    gpio_set_pull_mode(BUTTON_PIN, GPIO_PULLUP_ONLY); // Usa o pull-up interno do pino 46
 
     // Variáveis de controle
     int adc_val = 0;
     bool frozen = false;
-    int last_button_state = 1; 
+    int last_button_state = gpio_get_level(BUTTON_PIN); 
 
     while (1) {
         // Leitura do botão
         int current_button_state = gpio_get_level(BUTTON_PIN);
 
-        // Detecta borda de descida (botão pressionado)
+        // Detecta borda de descida (botão foi pressionado: de 1 para 0)
         if (last_button_state == 1 && current_button_state == 0) {
-            frozen = !frozen; 
+            frozen = !frozen; // Inverte o estado (congela/descongela)
             vTaskDelay(pdMS_TO_TICKS(50)); // Debounce
         }
         last_button_state = current_button_state;
 
-        // Atualiza o PWM se não estiver congelado
+        // Se não estiver congelado, continua lendo o ADC e alterando o brilho
         if (!frozen) {
             adc_val = adc1_get_raw(POT_PIN);
             ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, adc_val);
             ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
         }
 
-        // Calcula a tensão 
+        // Calcula a tensão para o terminal
         float voltage = (adc_val * 3.3) / 4095.0;
 
-        // Imprime os valores no terminal
+        // Imprime os valores
         printf("Raw ADC: %d | Tensao: %.2fV | Estado: %s\n", 
                adc_val, voltage, frozen ? "CONGELADO" : "LENDO");
 
