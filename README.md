@@ -2,4 +2,4 @@
 
 Alunos: Alexandre Freitas de Lima Pacheco
 
-        Cefras José Ferreira Mandú de Almeida
+Cefras José Ferreira Mandú de Almeida
